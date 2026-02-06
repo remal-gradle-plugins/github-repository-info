@@ -123,6 +123,7 @@ abstract class GitHubRepositoryInfoExtensionBase implements GitHubRepositoryInfo
         getGitRemoteRepositoryFullName().value(
             gitRemoteUri
                 .map(URIish::getRawPath)
+                .map(path -> path.startsWith("/") ? path.substring(1) : path)
                 .map(path -> substringBefore(path, DOT_GIT_EXT))
                 .map(ObjectUtils::nullIfEmpty)
         ).finalizeValueOnRead();
