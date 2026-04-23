@@ -10,7 +10,7 @@ import java.time.Instant
 
 buildscript {
     dependencies {
-        classpath 'com.google.code.gson:gson:2.13.2'
+        classpath 'com.google.code.gson:gson:2.14.0'
         classpath 'com.google.guava:guava:33.6.0-jre'
     }
     repositories {

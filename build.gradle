@@ -7,7 +7,7 @@ buildscript {
     dependencies {
         //classpath("$rootGroupId:$rootArtifactId:$rootSnapshotVersion") { version { strictly(rootSnapshotVersion) } }
         classpath 'name.remal.gradle-plugins.toolkit:build-logic:0.76.10'
-        classpath 'com.google.code.gson:gson:2.13.2'
+        classpath 'com.google.code.gson:gson:2.14.0'
         classpath 'com.google.guava:guava:33.6.0-jre'
     }
     repositories {
@@ -35,7 +35,7 @@ apply from: 'build-generate-models.gradle'
 testSourceSets.create('componentTest')
 
 dependencies {
-    classesRelocation 'com.google.code.gson:gson:2.13.2'
+    classesRelocation 'com.google.code.gson:gson:2.14.0'
     classesRelocation('org.eclipse.jgit:org.eclipse.jgit:6.10.1.202505221210-r') {
         exclude group: 'org.slf4j'
     }
