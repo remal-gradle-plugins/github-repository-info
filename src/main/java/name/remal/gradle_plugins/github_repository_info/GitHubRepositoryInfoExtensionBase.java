@@ -1,8 +1,8 @@
 package name.remal.gradle_plugins.github_repository_info;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.nio.file.Files.readAllBytes;
+import static java.nio.file.Files.readString;
 import static java.util.Comparator.comparing;
+import static name.remal.gradle_plugins.github_repository_info.GitHubApiTokenUtils.extractGitHubApiTokenFromGitConfig;
 import static name.remal.gradle_plugins.toolkit.ConfigurationCacheSafeSystem.getConfigurationCacheSafeOptionalEnv;
 import static name.remal.gradle_plugins.toolkit.StringUtils.substringBefore;
 import static org.eclipse.jgit.lib.Constants.CONFIG;
@@ -26,6 +26,7 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.Internal;
 import org.gradle.initialization.BuildCancellationToken;
+import org.jspecify.annotations.Nullable;
 
 abstract class GitHubRepositoryInfoExtensionBase implements GitHubRepositoryInfoSettings {
 
@@ -56,6 +57,7 @@ abstract class GitHubRepositoryInfoExtensionBase implements GitHubRepositoryInfo
                 .orElse(getProviders().provider(() -> getConfigurationCacheSafeOptionalEnv("GITHUB_ACTIONS_TOKEN")))
                 .orElse(getProviders().gradleProperty("name.remal.github-repository-info.api-token"))
                 .orElse(getProviders().gradleProperty("name.remal.github-repository-info.api.token"))
+                .orElse(getProviders().provider(this::readGitHubApiTokenFromGitConfig))
         );
         getGithubServerUrl().convention(
             getProviders().environmentVariable("GITHUB_SERVER_URL")
@@ -75,22 +77,8 @@ abstract class GitHubRepositoryInfoExtensionBase implements GitHubRepositoryInfo
     {
         var gitRemoteUri = getObjects().property(URIish.class);
         gitRemoteUri.value(getProviders().provider(() -> {
-            var gitConfigPath = getRepositoryRootDir()
-                .map(Directory::getAsFile)
-                .map(File::toPath)
-                .map(path -> path.resolve(DOT_GIT).resolve(CONFIG))
-                .getOrNull();
-            if (gitConfigPath == null) {
-                return null;
-            }
-
-            final Config config;
-            try {
-                var bytes = readAllBytes(gitConfigPath);
-                var text = new String(bytes, UTF_8);
-                config = new Config();
-                config.fromText(text);
-            } catch (NoSuchFileException ignored) {
+            var config = readRepositoryGitConfig();
+            if (config == null) {
                 return null;
             }
 
@@ -127,6 +115,47 @@ abstract class GitHubRepositoryInfoExtensionBase implements GitHubRepositoryInfo
                 .map(path -> substringBefore(path, DOT_GIT_EXT))
                 .map(ObjectUtils::nullIfEmpty)
         ).finalizeValueOnRead();
+    }
+
+
+    @Nullable
+    private String readGitHubApiTokenFromGitConfig() throws Exception {
+        var configText = readRepositoryGitConfigText();
+        if (configText == null) {
+            return null;
+        }
+
+        return extractGitHubApiTokenFromGitConfig(configText, getGithubServerUrl().getOrNull());
+    }
+
+    @Nullable
+    private Config readRepositoryGitConfig() throws Exception {
+        var configText = readRepositoryGitConfigText();
+        if (configText == null) {
+            return null;
+        }
+
+        var config = new Config();
+        config.fromText(configText);
+        return config;
+    }
+
+    @Nullable
+    private String readRepositoryGitConfigText() throws Exception {
+        var gitConfigPath = getRepositoryRootDir()
+            .map(Directory::getAsFile)
+            .map(File::toPath)
+            .map(path -> path.resolve(DOT_GIT).resolve(CONFIG))
+            .getOrNull();
+        if (gitConfigPath == null) {
+            return null;
+        }
+
+        try {
+            return readString(gitConfigPath);
+        } catch (NoSuchFileException ignored) {
+            return null;
+        }
     }
 
 

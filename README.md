@@ -134,6 +134,11 @@ set `GITHUB_TOKEN` environment variable for your GitHub Actions job:
 
 `GITHUB_ACTIONS_TOKEN` environment variable can be used instead of `GITHUB_TOKEN`.
 
+In GitHub Actions, the plugin usually works even without any token configuration.
+If no token is configured, the plugin falls back to the credentials
+persisted in `.git/config` by [`actions/checkout`](https://github.com/actions/checkout)
+(unless its `persist-credentials` input is disabled).
+
 To configure a GitHub token for local development,
 add `name.remal.github-repository-info.api-token` property to your `~/.gradle/gradle.properties` file:
 
@@ -143,3 +148,11 @@ name.remal.github-repository-info.api-token = <your github token here>
 
 This file is in [the Gradle User Home directory](https://docs.gradle.org/current/userguide/directory_layout.html#dir:gradle_user_home),
 so it won't be committed.
+
+The token sources in priority order:
+
+1. `GITHUB_TOKEN` environment variable
+2. `GITHUB_ACTIONS_TOKEN` environment variable
+3. `name.remal.github-repository-info.api-token` Gradle property
+4. `name.remal.github-repository-info.api.token` Gradle property
+5. Credentials persisted in `.git/config` by [`actions/checkout`](https://github.com/actions/checkout)
