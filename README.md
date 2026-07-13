@@ -136,8 +136,13 @@ set `GITHUB_TOKEN` environment variable for your GitHub Actions job:
 
 In GitHub Actions, the plugin usually works even without any token configuration.
 If no token is configured, the plugin falls back to the credentials
-persisted in `.git/config` by [`actions/checkout`](https://github.com/actions/checkout)
+persisted in the repository git config by [`actions/checkout`](https://github.com/actions/checkout)
 (unless its `persist-credentials` input is disabled).
+The plugin invokes the `git` CLI (`git config --local --includes --list`) to read the repository config,
+so the credentials are found for all `actions/checkout` layouts:
+both the direct `extraheader` value and the newer credentials file referenced via `includeIf`.
+The `git` executable is required on `PATH` when these values are needed
+(the build fails with a clear error otherwise; `includeIf` resolution requires git 2.13+).
 
 To configure a GitHub token for local development,
 add `name.remal.github-repository-info.api-token` property to your `~/.gradle/gradle.properties` file:
@@ -155,4 +160,4 @@ The token sources in priority order:
 2. `GITHUB_ACTIONS_TOKEN` environment variable
 3. `name.remal.github-repository-info.api-token` Gradle property
 4. `name.remal.github-repository-info.api.token` Gradle property
-5. Credentials persisted in `.git/config` by [`actions/checkout`](https://github.com/actions/checkout)
+5. Credentials persisted in the repository git config by [`actions/checkout`](https://github.com/actions/checkout) (read via the git CLI, following `include`/`includeIf`)
