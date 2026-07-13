@@ -12,6 +12,7 @@ import lombok.Value;
 @Value
 @AllArgsConstructor
 @NoArgsConstructor(force = true)
+@SuppressWarnings("java:S1948")
 class GitConfigEntries implements Serializable {
 
     private static final long serialVersionUID = 1L;
