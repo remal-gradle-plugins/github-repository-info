@@ -43,9 +43,6 @@ testSourceSets.create('componentTest')
 
 dependencies {
     classesRelocation 'com.google.code.gson:gson:2.14.0'
-    classesRelocation('org.eclipse.jgit:org.eclipse.jgit:6.10.1.202505221210-r') {
-        exclude group: 'org.slf4j'
-    }
 }
 
 gradlePlugin {

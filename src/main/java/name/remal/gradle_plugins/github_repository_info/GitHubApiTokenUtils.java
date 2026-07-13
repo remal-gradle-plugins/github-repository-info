@@ -5,20 +5,20 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static lombok.AccessLevel.PRIVATE;
 import static name.remal.gradle_plugins.toolkit.ObjectUtils.nullIfEmpty;
 import static name.remal.gradle_plugins.toolkit.StringUtils.trimRightWith;
-import static org.eclipse.jgit.transport.HttpConfig.EXTRA_HEADER;
-import static org.eclipse.jgit.transport.HttpConfig.HTTP;
 
 import java.util.Base64;
+import java.util.List;
 import lombok.NoArgsConstructor;
-import org.eclipse.jgit.errors.ConfigInvalidException;
-import org.eclipse.jgit.lib.Config;
 import org.jspecify.annotations.Nullable;
 
 @NoArgsConstructor(access = PRIVATE)
 class GitHubApiTokenUtils {
 
+    private static final String HTTP = "http";
+    private static final String EXTRA_HEADER = "extraheader";
+
     /**
-     * Extracts a GitHub API token from a git config with credentials persisted by
+     * Extracts a GitHub API token from resolved git config entries with credentials persisted by
      * <a href="https://github.com/actions/checkout">{@code actions/checkout}</a>.
      *
      * <p>Only {@code extraheader} values of {@code [http "<url>"]} sections matching {@code githubServerUrl}
@@ -30,33 +30,38 @@ class GitHubApiTokenUtils {
      * <p>If multiple values match, the last successfully parsed one wins.
      */
     @Nullable
-    public static String extractGitHubApiTokenFromGitConfig(
-        String gitConfigText,
+    public static String extractGitHubApiTokenFromGitConfigEntries(
+        List<GitConfigEntry> gitConfigEntries,
         @Nullable String githubServerUrl
-    ) throws ConfigInvalidException {
+    ) {
         if (githubServerUrl == null || githubServerUrl.isEmpty()) {
             return null;
         }
 
-        var gitConfig = new Config();
-        gitConfig.fromText(gitConfigText);
-
         var expectedSubsection = trimRightWith(githubServerUrl, '/');
 
         String token = null;
-        for (var subsection : gitConfig.getSubsections(HTTP)) {
-            if (!trimRightWith(subsection, '/').equalsIgnoreCase(expectedSubsection)) {
+        for (var entry : gitConfigEntries) {
+            if (!entry.getSection().equals(HTTP)
+                || !entry.getName().equals(EXTRA_HEADER)
+            ) {
                 continue;
             }
 
-            // Git semantics: the last value wins. With multiple case-variant subsections matching the same
-            // server URL, "last" means the last matching subsection, not strict file order. That's acceptable,
-            // as `actions/checkout` writes a single entry.
-            for (var extraHeader : gitConfig.getStringList(HTTP, subsection, EXTRA_HEADER)) {
-                var parsedToken = parseGitHubApiTokenFromExtraHeader(extraHeader);
-                if (parsedToken != null) {
-                    token = parsedToken;
-                }
+            var subsection = entry.getSubsection();
+            if (subsection == null || !trimRightWith(subsection, '/').equalsIgnoreCase(expectedSubsection)) {
+                continue;
+            }
+
+            var extraHeader = entry.getValue();
+            if (extraHeader == null) {
+                continue;
+            }
+
+            // Git semantics: the last value wins. The entries come in git's own resolution order.
+            var parsedToken = parseGitHubApiTokenFromExtraHeader(extraHeader);
+            if (parsedToken != null) {
+                token = parsedToken;
             }
         }
         return token;

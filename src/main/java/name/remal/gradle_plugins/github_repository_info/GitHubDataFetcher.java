@@ -1,5 +1,6 @@
 package name.remal.gradle_plugins.github_repository_info;
 
+import static com.google.common.hash.Hashing.sha512;
 import static com.google.common.net.HttpHeaders.ACCEPT;
 import static com.google.common.net.HttpHeaders.ACCEPT_ENCODING;
 import static com.google.common.net.HttpHeaders.ACCEPT_LANGUAGE;
@@ -14,7 +15,6 @@ import static name.remal.gradle_plugins.github_repository_info.JsonUtils.GSON;
 import static name.remal.gradle_plugins.toolkit.ConfigurationCacheSafeSystem.getConfigurationCacheSafeBooleanEnv;
 import static name.remal.gradle_plugins.toolkit.InTestFlags.isInTest;
 import static name.remal.gradle_plugins.toolkit.PathUtils.normalizePath;
-import static org.apache.commons.codec.digest.DigestUtils.sha512Hex;
 
 import com.google.gson.reflect.TypeToken;
 import java.net.URI;
@@ -80,7 +80,7 @@ abstract class GitHubDataFetcher implements BuildService<GitHubDataFetcherParams
             return null;
         }
 
-        var hash = sha512Hex(fullUrl.getBytes(UTF_8));
+        var hash = sha512().hashBytes(fullUrl.getBytes(UTF_8)).toString();
         return cacheDir.resolve(hash + ".json");
     }
 
