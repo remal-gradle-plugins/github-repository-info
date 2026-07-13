@@ -9,7 +9,7 @@
 <!--plugin-usage:name.remal.github-repository-info-->
 ```groovy
 plugins {
-    id 'name.remal.github-repository-info' version '1.1.0'
+    id 'name.remal.github-repository-info' version '1.1.1'
 }
 ```
 <!--/plugin-usage-->
