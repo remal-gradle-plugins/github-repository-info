@@ -51,6 +51,11 @@ gradlePlugin {
             id = 'name.remal.github-repository-info'
             implementationClass = 'name.remal.gradle_plugins.github_repository_info.GitHubRepositoryInfoPlugin'
             displayName = 'A Gradle plugin for accessing GitHub repository information'
+            compatibility {
+                features {
+                    configurationCache = true
+                }
+            }
         }
     }
 }
