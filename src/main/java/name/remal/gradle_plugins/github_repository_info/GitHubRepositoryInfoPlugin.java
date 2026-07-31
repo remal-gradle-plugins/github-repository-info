@@ -8,18 +8,18 @@ import static name.remal.gradle_plugins.toolkit.ObjectUtils.doNotInline;
 import static name.remal.gradle_plugins.toolkit.git.GitUtils.findGitRepositoryRootFor;
 
 import java.util.Optional;
+import name.remal.gradle_plugins.toolkit.AbstractSettingsAwarePlugin;
 import name.remal.gradle_plugins.toolkit.CiSystem;
-import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.services.BuildService;
 
-public abstract class GitHubRepositoryInfoPlugin implements Plugin<Project> {
+public abstract class GitHubRepositoryInfoPlugin extends AbstractSettingsAwarePlugin {
 
     public static final String GITHUB_REPOSITORY_INFO_EXTENSION_NAME = doNotInline("githubRepositoryInfo");
 
     @Override
     @SuppressWarnings("unchecked")
-    public void apply(Project project) {
+    protected void applyToProject(Project project) {
         var dataFetcher = project.getGradle().getSharedServices().registerIfAbsent(
             getBuildServiceName(GitHubDataFetcher.class),
             GitHubDataFetcher.class,
