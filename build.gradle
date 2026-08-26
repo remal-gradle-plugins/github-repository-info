@@ -8,7 +8,7 @@ buildscript {
         //classpath("$rootGroupId:$rootArtifactId:$rootSnapshotVersion") { version { strictly(rootSnapshotVersion) } }
         classpath 'name.remal.gradle-plugins.toolkit:build-logic:0.79.0'
         classpath 'com.google.code.gson:gson:2.14.0'
-        classpath 'com.google.guava:guava:33.7.0-jre'
+        classpath 'com.google.guava:guava:33.7.1-jre'
     }
     repositories {
         if (System.getenv('CI') == 'true') {
