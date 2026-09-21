@@ -200,9 +200,10 @@ class GitHubRepositoryInfoPluginTest {
                 basicAuthorizationExtraHeader(SYNTHETIC_TOKEN)
             );
 
-            var expectedToken = System.getenv("GITHUB_TOKEN") != null
-                ? System.getenv("GITHUB_TOKEN")
-                : System.getenv("GITHUB_ACTIONS_TOKEN");
+            var expectedToken = System.getenv("GITHUB_TOKEN");
+            if (expectedToken == null) {
+                expectedToken = System.getenv("GITHUB_ACTIONS_TOKEN");
+            }
             var token = extension.getGithubApiToken().getOrNull();
             assertNotEquals(SYNTHETIC_TOKEN, token, "git config token must not win over environment variables");
             assertEquals(expectedToken, token);
