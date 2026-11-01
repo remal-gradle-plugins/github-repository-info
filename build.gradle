@@ -7,7 +7,7 @@ buildscript {
     dependencies {
         //classpath("$rootGroupId:$rootArtifactId:$rootSnapshotVersion") { version { strictly(rootSnapshotVersion) } }
         classpath 'name.remal.gradle-plugins.toolkit:build-logic:0.79.4'
-        classpath 'com.google.code.gson:gson:2.14.0'
+        classpath 'com.google.code.gson:gson:2.15.0'
         classpath 'com.google.guava:guava:33.7.2-jre'
     }
     repositories {
@@ -42,7 +42,7 @@ apply from: 'build-generate-models.gradle'
 testSourceSets.create('componentTest')
 
 dependencies {
-    classesRelocation 'com.google.code.gson:gson:2.14.0'
+    classesRelocation 'com.google.code.gson:gson:2.15.0'
 }
 
 gradlePlugin {
